@@ -1,0 +1,161 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="java.util.Map" %>
+<%@page import="cmd.vo.CmdVO"%>
+<% 
+	request.setCharacterEncoding("UTF-8");
+	String cp = request.getContextPath();
+	
+	Map sessionData = null;
+	  
+    boolean isSession = true;
+    CmdVO vo = null;
+    String member_id="";
+    String member_no ="";
+  
+   
+    if (session.getAttribute("sessionData") != null) {
+    	
+    	 sessionData = (Map)session.getAttribute("sessionData");
+		 member_id = sessionData.get("member_id").toString();	
+		 member_no = sessionData.get("member_no").toString();	
+		
+       
+    } else {
+        isSession = false;
+        session.removeAttribute("sessionData");
+    }
+
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD60rwjxUjBDRiDUUfwQvNhjiP8d8hXVD8"></script> 
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+</head>
+<script type="text/javascript">
+
+$(document).ready(function(){
+var a = '<%=member_no%>';
+	
+	$('#member_no').val(a);
+	var checkPage = $("#return_value").val();
+	if(checkPage == "addOk"){
+		alert("등록이 완료 되었습니다.");
+		$("#return_value").val("");
+	}
+	$("#singUp").click(function(){
+		var d_name = $("#d_name").val();
+		var d_address = $("#d_address").val();
+		var d_content = $("#d_content").val();
+		var latitude = $("#latitude").val();
+		var longitude = $("#longitude").val();
+		
+		if(d_name == null || d_name == ""){
+			alert("위험지역 이름을 입력해 주세요.")
+		} else if (d_address == null || d_address == ""){
+			alert("위험지역 주소(위치)를 정확하게 입력해 주세요.")
+		} else if (d_content == null || d_content == ""){
+			alert("위험지역 상세 정보를 입력해 주세요.")
+		} else if (latitude == null || latitude == ""){
+			alert("정확한 주소입력 후 위도 경도값을 확인하세요.")
+		} else {
+			confirm();
+		}
+		
+	});
+});
+
+function change_address(){
+	var c_address = $("#d_address").val();
+	getLocation();
+}
+
+function confirm(){
+    document.addDangerArea.action = '<%=cp%>/web/addDangerArea.do';
+    document.addDangerArea.submit();
+ }
+
+//위도 경도 구하기
+var geocoder = new google.maps.Geocoder(); 
+function getLocation() {
+		
+	var address = $("#d_address").val();
+
+	geocoder.geocode({'address': address}, function(results, status) {
+		
+		if( status == google.maps.GeocoderStatus.OK ) {  
+			
+			if (results.length == 1) {
+				
+				var location = "" + results[0].geometry.location;
+				
+				location = location.substring(1, location.length-1);
+				
+				var array_data = location.split(", ");
+			    
+				var latitude = array_data[0];
+				var longitude = array_data[1];
+				
+				$('#latitude').val(latitude);
+				$('#longitude').val(longitude);
+				
+			} else {
+				alert(results.length + "개의 결과를 찾았습니다.");
+			}
+		} else {
+			alert('실패.');
+		}
+	});
+}
+</script>
+ 
+<body>
+
+
+<div data-role="page">
+	  <jsp:include page="header.jsp"></jsp:include>
+  <div data-role="main" class="ui-content">
+
+    <h2 style=" text-align: center">위험지역등록 등록</h2>
+   	<input type="hidden" value="${return_value}" id="return_value">		
+          <form role="form" method="post" id="addDangerArea" name="addDangerArea" style="margin-top: 1em;">
+			
+			<input type="hidden" value="${sessionScope.sessionData.memberInfo.getMember_no()}" id="member_no" name="member_no">
+				
+			  <div class="form-group">
+			    <label for="d_name">위험지역 이름</label>
+			    <input type="text" class="form-control" id="d_name" name="d_name">
+			  </div>
+			  
+			  <div class="form-group">
+			    <label for="d_address">주소(위치)</label>
+			    <input type="text" class="form-control" id="d_address" name="d_address" onchange="change_address()">
+			  </div>
+			  
+			  <div style="margin-bottom: 1em;">
+				<input type="text" id="latitude" name="d_latitude" readonly="readonly" placeholder="위도">
+				<input type="text" id="longitude" name="d_longitude" readonly="readonly" placeholder="경도">
+			  </div>
+<%-- 			  <jsp:include page="address.jsp"/>
+ --%>			  <div class="form-group">
+				<label for="d_content">상세 정보</label>
+				<textarea class="form-control" rows="10" id="d_content" style="resize:none;" name="d_content"></textarea>
+			  </div>
+			  <input type="button" value="등록" id="singUp" class="btn btn-default">
+		</form> 
+
+            
+  
+     
+ 
+  </div>
+  
+     <jsp:include page="../footer.jsp"></jsp:include>
+
+</body>
+</html>

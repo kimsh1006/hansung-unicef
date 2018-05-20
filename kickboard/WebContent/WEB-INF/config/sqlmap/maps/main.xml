@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="main">
+
+	<select id="selectAll_list" parameterType="map" resultType="cmd.vo.CompanyVO">
+		/*전체 업체 리스트 가져오기*/
+		SELECT
+			c_no, c_name
+			, c_latitude, c_longitude
+			, c_type, c_address
+			, c_content, c_phone
+		FROM
+			company
+		WHERE
+			<!-- member_no = '7777' || member_no = #{member_no} -->
+			1=1
+		<if test="search_c_name != '' and search_c_name != null and search_c_name != undefined">
+			AND c_name like CONCAT('%', #{search_c_name}, '%')
+		</if>
+		ORDER BY c_no DESC
+	</select>
+	
+	<select id="selectAll_Dangerlist" parameterType="map" resultType="cmd.vo.CompanyVO">
+		/*전체 위험지역 리스트 가져오기*/
+		SELECT
+			d_no, d_name
+			, d_latitude, d_longitude
+			, d_address
+			, d_content
+		FROM
+			dangerArea
+		WHERE
+			<!-- member_no = '7777' || member_no = #{member_no} -->
+			1=1
+		ORDER BY d_no DESC
+	</select>
+	
+	<select id="selectMy_list" parameterType="map" resultType="cmd.vo.CompanyVO">
+		/*My 리스트 가져오기*/
+		SELECT
+			c_no, c_name
+			, c_latitude, c_longitude
+			, c_type, c_address
+			, c_content, c_phone
+		FROM
+			company
+		WHERE
+			1 =1
+		<if test="search_c_name != '' and search_c_name != null and search_c_name != undefined">
+			AND c_name like CONCAT('%', #{search_c_name}, '%')
+		</if>
+		ORDER BY c_no DESC
+	</select>
+	
+	<select id="selectC_no_details" parameterType="map" resultType="cmd.vo.CompanyVO">
+		/*업체 번호로 업체정보 가져오기*/
+		SELECT
+			c_no, c_name
+			, c_latitude, c_longitude
+			, c_type, c_address
+			, c_content, c_phone
+		FROM
+			company
+		WHERE
+			c_no = #{c_no}
+	</select>
+
+	<select id="admin_check" resultType="map"  parameterType="map">
+		/* 관리자 아이디 비번 check*/
+		SELECT
+			*
+		FROM
+			admin
+		WHERE
+			id = #{id}
+			and
+			pwd = #{pwd}
+	</select>
+	
+	<select id="selectMyDangerAreaList" resultType="map"  parameterType="map">
+		/* 위험지역 My 리스트 */
+		SELECT
+			*
+		FROM
+			dangerArea
+		WHERE
+			1 = 1
+	</select>
+	
+	<insert id="addCompany" parameterType="map">
+		/* 업체 등록 */
+		INSERT INTO
+			company
+			(
+				c_name
+				, c_latitude
+				, c_longitude
+				, c_type
+				, c_address
+				, c_content
+				, c_phone
+				, member_no
+			)
+		VALUES
+			(
+				#{c_name}
+				, #{c_latitude}
+				, #{c_longitude}
+				, #{c_type}
+				, #{c_address}
+				, #{c_content}
+				, #{c_phone}
+				, #{member_no}			
+			)
+	
+	</insert>
+	
+	<insert id="insertDangerArea" parameterType="map">
+		/* 위험지역 등록 */
+		INSERT INTO
+			dangerArea
+			(
+				d_name
+				, d_address
+				, d_content
+				, d_latitude
+				, d_longitude
+				, member_no
+			)
+		VALUES
+			(
+				#{d_name}
+				, #{d_address}
+				, #{d_content}
+				, #{d_latitude}
+				, #{d_longitude}
+				, #{member_no}			
+			)
+	</insert>
+	
+	<update id="updateCompany" parameterType="map">
+		UPDATE
+			company
+		SET
+			c_name = #{c_name}
+			, c_latitude = #{c_latitude}
+			, c_longitude = #{c_longitude}
+			, c_type = #{c_type}
+			, c_address = #{c_address}
+			, c_content = #{c_content}
+			, c_phone = #{c_phone}
+		WHERE
+			c_no = #{c_no}
+	</update>
+	
+	<delete id="deleteDangerArea" parameterType="map">
+		/* 위험지역 삭제 */
+		DELETE FROM
+			dangerArea
+		WHERE
+			d_no = #{d_no}
+	</delete>
+		
+	<delete id="deleteCompany" parameterType="map">
+		/* 업체 삭제 */
+		DELETE FROM
+			company
+		WHERE
+			c_no = #{c_no}
+	</delete>
+</mapper>

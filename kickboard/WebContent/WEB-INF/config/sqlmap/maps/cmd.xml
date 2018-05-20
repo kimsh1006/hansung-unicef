@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cmd">
+
+
+	
+	
+	<select id="eqChk" parameterType="map" resultType="String">
+		
+		SELECT * FROM bike_member WHERE member_id = #{member_id}
+		
+						
+	</select>
+	
+	
+	<insert id="insertMember_join" parameterType="map">
+	
+		/*	회원 가입	*/
+		INSERT INTO
+					bike_member
+					(
+
+						member_id
+						,password
+						,email
+						,nm
+						,hp
+						
+						
+						
+					)
+		VALUES
+				(
+
+						#{member_id}
+						,#{password}
+						,#{email}
+						,#{nm}
+						,#{hp}
+						
+						
+				)
+	</insert>
+	
+	
+	<select id="getMemberInfo" parameterType="map" resultType="cmd.vo.CmdVO">
+		/* 사용자 정보 조회 */
+		SELECT
+					
+					member_no
+					,member_id
+					,password
+					,email
+					,money
+					,bike_no
+					,nm
+					,hp		
+		FROM
+						bike_member 
+			
+		WHERE 	
+				1=1
+				<if test="member_id != null and member_id != ''">
+				AND member_id = #{member_id}
+				</if>
+				<if test="member_no != null and member_no != ''">
+				AND member_no = #{member_no}
+				</if>
+				<if test="password !=null and password != ''">
+				AND password = #{password}
+				</if>
+				
+				
+						
+	</select>
+	
+	<select id="getFindId" parameterType="map" resultType="String">
+		/* 아이디 조회 */
+		SELECT
+					
+						member_id
+					
+						
+		FROM
+						bike_member 
+			
+		WHERE 	
+				1=1
+
+				AND email = #{email}
+				
+					
+</select>
+<select id="getFindPw" parameterType="map" resultType="String">
+		/* 비밀번호 조회 */
+		SELECT
+					
+						password
+					
+						
+		FROM
+						bike_member 
+			
+		WHERE 	
+				1=1
+				
+				AND member_id = #{member_id}
+	
+				AND email = #{email}
+				
+					
+</select>
+	
+	<select id="get_bike_list" parameterType="map" resultType="cmd.vo.CmdVO">
+		
+		SELECT * FROM bike_bike where bike_no not in (select bike_no from bike_member)
+		
+						
+	</select>
+	
+		
+	<select id="get_bike_list_admin" parameterType="map" resultType="cmd.vo.CmdVO">
+		
+		SELECT * FROM bike_bike
+		
+						
+	</select>
+	
+		<select id="get_money_list" parameterType="map" resultType="cmd.vo.CmdVO">
+		
+		SELECT  m.member_no,m.money,m2.member_id,m.nm FROM bike_money as m left outer join bike_member as m2 on m.member_no = m2.member_no
+		
+						
+	</select>
+	
+	
+	<update id="delete_money" parameterType="map">
+		delete from bike_money where member_no = #{member_no} AND  money = #{money} 
+	</update>
+	
+	<insert id="insert_bike" parameterType="map" >
+
+		INSERT INTO
+					bike_bike
+					(
+						
+						bike_nm
+						,price
+						,addr
+						,latitude
+						,longitude
+						,bikePW
+						
+						
+					)
+		VALUES
+					(
+				
+						
+						#{bike_nm}
+						,#{price}
+						,#{addr}
+						,#{latitude}
+						,#{longitude}
+						,#{bike_pw}
+					)
+	</insert>
+	
+	<insert id="insert_money" parameterType="map" >
+
+		INSERT INTO
+					bike_money
+					(
+						
+						member_no
+						,money
+						,nm
+						
+						
+						
+					)
+		VALUES
+					(
+				
+						
+						#{member_no}
+						,#{money}
+						,#{nm}
+						
+					)
+	</insert>
+	<select id="select_money" parameterType="map" resultType="String">
+		
+		SELECT  money FROM bike_member WHERE member_no = #{member_no}
+		
+						
+	</select>
+	<update id="update_money" parameterType="map">
+		UPDATE 
+			bike_member
+		SET
+			 money = #{money}
+			
+		WHERE
+			member_no = #{member_no}
+	</update>
+	
+
+
+	<update id="update_member" parameterType="map">
+		UPDATE 
+			bike_member
+		SET
+		
+			email = #{email}
+			,nm = #{nm}
+			,hp = #{hp}
+			<if test="password !=null and password != ''">
+				,password = #{password}
+			</if>
+			
+			
+		WHERE
+			member_no = #{member_no}
+	</update>
+	
+
+	
+	<update id="use_bike" parameterType="map">
+		UPDATE 
+			bike_member
+		SET
+			  money = #{money}
+			,bike_no = #{bike_no}
+				
+			  
+		WHERE
+			member_no = #{member_no}
+	</update>
+	
+	
+	<select id="get_bikeInfo" parameterType="map" resultType="cmd.vo.CmdVO">
+		/* 자전거 조회 */
+		SELECT
+						*
+						
+		FROM
+						bike_bike
+			
+		WHERE 	
+				1=1
+				
+				AND bike_no = #{bike_no}
+			
+				
+				
+						
+	</select>
+	
+	
+	
+	
+	<update id="update_bike" parameterType="map">
+		UPDATE 
+			bike_bike
+		SET
+			 addr = #{addr}
+			 ,latitude = #{latitude}
+			,longitude = #{longitude}
+			
+		WHERE
+			bike_no = #{bike_no}
+	</update>
+	
+	
+	
+	
+	
+	<select id="get_board_list" parameterType="map" resultType="cmd.vo.CmdVO">
+		SELECT b.*,m.member_id FROM board as b left join bike_member m on b.member_no = m.member_no 
+		WHERE 1=1
+		<if test="search !=null and search != ''">
+				AND (title like CONCAT('%',#{search},'%') OR content like CONCAT('%',#{search},'%'))
+		</if> 
+					
+	</select>
+	
+	
+	<insert id="insert_board" parameterType="map" >
+
+		INSERT INTO
+					board
+					(
+					
+						title
+						,content
+						
+						,member_no
+					)
+		VALUES
+					(
+
+						
+						#{title}
+						,#{content}
+						
+						,#{member_no}
+					)
+	</insert>
+	<update id="delete_board" parameterType="map">
+		delete from board where board_no = #{board_no}
+	</update>
+	<update id="update_board" parameterType="map">
+		UPDATE 
+			board
+		SET
+			 title = #{title}
+			 ,content = #{content} 
+			 
+		WHERE
+			board_no = #{board_no}
+	</update>
+	<update id="add_good" parameterType="map">
+		UPDATE 
+			board
+		SET
+			 good = #{good}
+		WHERE
+			board_no = #{board_no}
+	</update>
+	
+	
+	
+	<select id="get_article" parameterType="map" resultType="cmd.vo.CmdVO">
+	    SELECT
+			*
+		FROM
+			board
+		WHERE
+			board_no = #{board_no}
+	    
+	</select>
+	
+		<select id="get_answer" parameterType="map" resultType="cmd.vo.CmdVO">
+		SELECT
+	    	 a.*,m.member_id 
+	    FROM
+	    	 answer as a
+	    	 left join bike_member m on a.answer_write = m.member_no 
+	    	 
+	    WHERE
+	     	board_no = #{board_no}	
+	</select>
+	
+		<insert id="insert_answer" parameterType="map" >
+
+		INSERT INTO
+					answer
+					(
+						answer_content
+						,answer_write
+						,board_no
+					)
+		VALUES
+					(
+
+						
+						#{answer_content}
+						,#{answer_write}
+						,#{board_no}
+						
+					)
+	</insert>
+	<update id="delete_answer" parameterType="map">
+		delete from answer where answer_no = #{answer_no}
+	</update>
+	
+	
+	
+</mapper>

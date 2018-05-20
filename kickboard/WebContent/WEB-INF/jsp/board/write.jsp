@@ -1,0 +1,123 @@
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="java.util.Map" %>
+<%@page import="cmd.vo.CmdVO"%>
+<% 
+	request.setCharacterEncoding("UTF-8");
+	String cp = request.getContextPath();
+	
+	Map sessionData = null;
+	  
+    boolean isSession = true;
+    CmdVO vo = null;
+    String member_id="";
+    String member_no="";
+    if (session.getAttribute("sessionData") != null) {
+    	
+    	 sessionData = (Map)session.getAttribute("sessionData");
+		 member_id = sessionData.get("member_id").toString();	
+		 member_no = sessionData.get("member_no").toString();	
+       
+    } else {
+        isSession = false;
+        session.removeAttribute("sessionData");
+    }
+
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<script type="text/javascript">
+$(document).ready(function(){
+
+	
+});
+
+
+//글등록
+
+function insert_board(){
+	var title = $("#title").val();
+	var content = $("#content").val();
+
+	var member_no = "<%=member_no%>";
+	
+	
+	
+	if(title== "" || title == "null" || title == null){
+		alert("제목을 입력하세요!");
+		return false;
+	}
+	if(content == "" || content == "null" || content == null){
+		alert("내용을 입력하세요!");
+		return false;
+	}
+	
+	
+	if(member_no == "" || member_no == "null" || member_no == null){
+		alert("로그인후 이용하세요!");
+		location.href = "/cmd/main.do";
+		return false;
+	}
+	
+	
+	var params = "title="+title+"&content="+content+"&member_no="+member_no;
+	
+	    $.ajax({
+	        type        : "POST" 
+	      , async       : false
+	      , url         : "/cmd/insert_board.do"
+	      , data        : params
+	      , dataType    : "json"
+	      , timeout     : 30000  
+	      , cache       : false    
+	      , contentType : "application/x-www-form-urlencoded;charset=UTF-8"
+	      , error       : function(request, status, error) {
+	               alert( "작업 도중 오류가 발생하였습니다. " );
+	                
+	      }
+	      , success     : function(data) {
+	           
+	      	if(data.result_code=="1"){
+	      		alert("등록성공!");
+	      		location.href = "/cmd/board.do";	
+	      	}else{
+	      		alert("등록실패!");
+	      		location.href = "/cmd/board.do";	
+	      		return false;
+	      	}
+	                
+	      }
+		});
+ }
+</script>
+<title>커뮤니티</title>
+</head>
+<body>
+<div data-role="page">
+	<jsp:include page="../header.jsp"></jsp:include>
+  <div data-role="main" class="ui-content">
+    
+      <div class="ui-field-contain">
+        <label for="title">제목</label>
+        <input type="text" name="title" id="title">       
+       <label for="content">내용 </label>
+        <textarea name="content" id="content"></textarea>
+        
+      </div>
+        <div class="ui-block-a" style="width:100%;" ><button type="button" data-theme="b" onclick="insert_board();" style="background-color: #2ad !important;" >등록</button></div>
+    
+  </div>
+  <jsp:include page="../footer.jsp"></jsp:include>
+</div>
+
+
+
+
+
+</body>
+</html>
